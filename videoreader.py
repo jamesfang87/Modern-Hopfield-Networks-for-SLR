@@ -44,6 +44,8 @@ class VideoReader:
         return np.ndarray(all_results)  # this don't work
 
     def extract_important_landmarks(self, results):
+        # extract all from hands, 0-14 from pose, none from face
+        x = results.pose_landmarks.landmark[0]
         pass
 
     def draw_landmarks(self, frame, results):
@@ -51,15 +53,13 @@ class VideoReader:
                     frame,
                     results.face_landmarks,
                     self.mp_holistic.FACEMESH_CONTOURS,
-                    landmark_drawing_spec=None,
-                    connection_drawing_spec=self.mp_drawing_styles
-                    .get_default_face_mesh_contours_style())
+                    None,
+                    self.mp_drawing_styles.get_default_face_mesh_contours_style())
         self.mp_drawing.draw_landmarks(
                     frame,
                     results.pose_landmarks,
                     self.mp_holistic.POSE_CONNECTIONS,
-                    landmark_drawing_spec=self.mp_drawing_styles
-                    .get_default_pose_landmarks_style())
+                    self.mp_drawing_styles.get_default_pose_landmarks_style())
         self.mp_drawing.draw_landmarks(
                     frame,
                     results.left_hand_landmarks,
