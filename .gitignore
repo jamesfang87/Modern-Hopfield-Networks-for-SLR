@@ -1,1 +1,8 @@
 **/__pycache__/
+
+# ignore all videos
+*.mp4
+
+# ignore all csv files
+*.csv
+*.txt
