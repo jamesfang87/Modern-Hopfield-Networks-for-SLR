@@ -1,5 +1,9 @@
 **/__pycache__/
 
+# ignore .venv
+*.venv/*
+*.idea/*
+
 # ignore all videos
 *.mp4
 

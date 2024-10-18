@@ -11,6 +11,7 @@ class VideoReader:
 
     def read_video(self, video_path: str, show_video: bool = False) -> np.ndarray:
         with self.mp_holistic.Holistic() as holistic:
+            all_results = [] # list of results from holistic.process(frame) for all frames
             cap = cv2.VideoCapture(video_path)
             while cap.isOpened():
                 success, frame = cap.read()
@@ -22,6 +23,7 @@ class VideoReader:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 # generate results from holistic model
                 results = holistic.process(frame)
+                all_results.append(results)
 
                 # if show_video is true and we have results
                 if show_video and results is not None:
@@ -38,6 +40,11 @@ class VideoReader:
                     break
         cap.release()
         cv2.destroyAllWindows()
+
+        return np.ndarray(all_results)  # this don't work
+
+    def extract_important_landmarks(self, results):
+        pass
 
     def draw_landmarks(self, frame, results):
         self.mp_drawing.draw_landmarks(
