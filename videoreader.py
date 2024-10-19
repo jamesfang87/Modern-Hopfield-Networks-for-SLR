@@ -74,5 +74,5 @@ class VideoReader:
                     self.mp_drawing_styles.get_default_hand_connections_style())
         return frame
     
-    def write_data(self, output_path: str) -> None:
+    def write_data(self, data: np.ndarray, file_name: str, output_path: str) -> None:
         pass
