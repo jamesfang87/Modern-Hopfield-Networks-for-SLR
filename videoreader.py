@@ -24,7 +24,7 @@ class VideoReader:
 
             # change video_results so that it is np.zeros with shape T x num_landmarks x spatial dimensions (3D)
             total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
-            self.video_results = np.zeros((int(total_frames), 21 + 21 + 15, 3))
+            self.video_results = np.zeros((int(total_frames), 21 + 21 + 17, 3))
             
             frame_num = 0
             while cap.isOpened():
@@ -64,7 +64,7 @@ class VideoReader:
         Extracts all hand landmarks and pose landmarks numbered 0-14 from a results object
         the x, y, z coordinates of these landmarks are stored into self.video_results. Left hand
         landmarks are stored in the first 20 indices, right hand landmarks are stored in the next 20,
-        and pose landmarks in the last 14.
+        and pose landmarks in the last 17.
         
         Precondition: results and self.video_results is not None, 0 <= frame_num < max number of frames
 
@@ -86,7 +86,7 @@ class VideoReader:
                 self.video_results[frame_num, 21 + i] = np.array([x, y, z])
 
         # extract landmarks 0-14 from pose
-        for i in range(15):
+        for i in range(17):
             if results.pose_landmarks:
                 temp = results.pose_landmarks.landmark[i]
                 x, y, z = temp.x, temp.y, temp.z
