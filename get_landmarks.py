@@ -1,8 +1,6 @@
 import os
-
 import numpy as np
 import pandas as pd
-
 from videoreader import VideoReader
 
 
@@ -35,4 +33,4 @@ for file in os.scandir("data/videos"):
     else:
         split = "val"
     
-    v.write_data(file.name, f"data/npy/{split}")
+    v.write_data(file.name + ".npy", f"data/npy/{split}")

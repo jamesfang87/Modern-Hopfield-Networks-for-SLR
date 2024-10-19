@@ -83,14 +83,14 @@ class VideoReader:
             if results.right_hand_landmarks:
                 temp = results.right_hand_landmarks.landmark[i]
                 x, y, z = temp.x, temp.y, temp.z
-                self.video_results[frame_num, 20 + i] = np.array([x, y, z])
+                self.video_results[frame_num, 21 + i] = np.array([x, y, z])
 
         # extract landmarks 0-14 from pose
         for i in range(15):
             if results.pose_landmarks:
                 temp = results.pose_landmarks.landmark[i]
                 x, y, z = temp.x, temp.y, temp.z
-                self.video_results[frame_num, i + 40] = np.array([x, y, z])
+                self.video_results[frame_num, 42 + i] = np.array([x, y, z])
 
     def draw_landmarks(self, frame, results):
         """
