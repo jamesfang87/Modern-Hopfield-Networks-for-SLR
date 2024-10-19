@@ -12,7 +12,7 @@ class VideoReader:
         # list of results from holistic.process(frame) for all frames
         self.video_results = None  # instantiated to None for now
 
-    def read_video(self, video_path: str, show_video: bool = False):
+    def read_video(self, video_path: str, show_video: bool = False) -> None:
         """
         Reads in and returns the 3D locations of important hand and pose landmarks from a video of a sign.
 
@@ -59,11 +59,11 @@ class VideoReader:
         cap.release()
         cv2.destroyAllWindows()
 
-    def extract_important_landmarks(self, results, frame_num: int):
+    def extract_important_landmarks(self, results, frame_num: int) -> None:
         """
         Extracts all hand landmarks and pose landmarks numbered 0-14 from a results object
         the x, y, z coordinates of these landmarks are stored into self.video_results. Hand
-        landmarks are stored in the first 20 indicies and pose landmarks in the next (and last) 14.
+        landmarks are stored in the first 20 indices and pose landmarks in the next (and last) 14.
         
         Precondition: results and self.video_results is not None, 0 <= frame_num < max number of frames
 
@@ -74,13 +74,13 @@ class VideoReader:
         for i in range(21):
             temp = results.hand_landmarks.landmark[i]
             x, y, z = temp.x, temp.y, temp.z
-            self.video_results[frame_num, i] = np.array(x, y, z)
+            self.video_results[frame_num, i] = np.array([x, y, z])
 
         # extract landmarks 0-14 from pose
         for i in range(15):
             temp = results.pose_landmarks.landmark[i]
             x, y, z = temp.x, temp.y, temp.z
-            self.video_results[frame_num, i + 21, 0] = np.array(x, y, z)
+            self.video_results[frame_num, i + 21, 0] = np.array([x, y, z])
 
     def draw_landmarks(self, frame, results):
         """
