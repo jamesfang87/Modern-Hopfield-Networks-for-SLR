@@ -25,7 +25,7 @@ for file in os.scandir("data/videos"):
         continue
 
     # otherwise, read data from the video
-    data: np.ndarray = v.read_video(f"data/videos/{file.name}", True)
+    v.read_video(f"data/videos/{file.name}", True)
 
     # determine whether the video should be in test, train or split
     if file.name in test_videos:
@@ -35,4 +35,4 @@ for file in os.scandir("data/videos"):
     else:
         split = "val"
     
-    v.write_data(data, file.name, f"data/csv/{split}")
+    v.write_data(file.name, f"data/npy/{split}")

@@ -9,10 +9,24 @@ class VideoReader:
         self.mp_drawing_styles = mp.solutions.drawing_styles
         self.mp_holistic = mp.solutions.holistic
 
-    def read_video(self, video_path: str, show_video: bool = False) -> np.ndarray:
+        # list of results from holistic.process(frame) for all frames
+        self.video_results = None  # instantiated to None for now
+
+    def read_video(self, video_path: str, show_video: bool = False):
+        """
+        Reads in and returns the 3D locations of important hand and pose landmarks from a video of a sign.
+
+        :param video_path: path to the video:
+        :param show_video: whether to display the video or not
+        """
         with self.mp_holistic.Holistic() as holistic:
-            all_results = [] # list of results from holistic.process(frame) for all frames
             cap = cv2.VideoCapture(video_path)
+
+            # change video_results so that it is np.zeros with shape T x num_landmarks x spatial dimensions (3D)
+            total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+            self.video_results = np.zeros((int(total_frames), 21 + 15, 3))
+            
+            frame_num = 0
             while cap.isOpened():
                 success, frame = cap.read()
                 if not success:
@@ -23,7 +37,7 @@ class VideoReader:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 # generate results from holistic model
                 results = holistic.process(frame)
-                all_results.append(results)
+                self.extract_important_landmarks(results)
 
                 # if show_video is true and we have results
                 if show_video and results is not None:
@@ -35,20 +49,43 @@ class VideoReader:
                     # show flipped image
                     video_name = video_path.split("/")[-1]
                     cv2.imshow(f"{video_name}", cv2.flip(frame, 1))
+                
+                # increment frame number
+                frame_num += 1
 
                 if cv2.waitKey(5) & 0xFF == 27:
                     break
+
         cap.release()
         cv2.destroyAllWindows()
 
-        return np.ndarray(all_results)  # this don't work
+    def extract_important_landmarks(self, results, frame_num: int):
+        """
+        Extracts all hand landmarks and pose landmarks numbered 0-14 from a results object
+        the x, y, z coordinates of these landmarks are stored into self.video_results. Hand
+        landmarks are stored in the first 20 indicies and pose landmarks in the next (and last) 14.
+        
+        Precondition: results and self.video_results is not None, 0 <= frame_num < max number of frames
 
-    def extract_important_landmarks(self, results):
-        # extract all from hands, 0-14 from pose, none from face
-        x = results.pose_landmarks.landmark[0]
-        pass
+        :param results: results returned from the mediapipe holistic model
+        :param frame_num: the current frame number
+        """
+        # extract all from hands
+        for i in range(21):
+            temp = results.hand_landmarks.landmark[i]
+            x, y, z = temp.x, temp.y, temp.z
+            self.video_results[frame_num, i] = np.array(x, y, z)
+
+        # extract landmarks 0-14 from pose
+        for i in range(15):
+            temp = results.pose_landmarks.landmark[i]
+            x, y, z = temp.x, temp.y, temp.z
+            self.video_results[frame_num, i + 21, 0] = np.array(x, y, z)
 
     def draw_landmarks(self, frame, results):
+        """
+        Draws results from mediapipe holistic model on the frame
+        """
         self.mp_drawing.draw_landmarks(
                     frame,
                     results.face_landmarks,
@@ -74,5 +111,5 @@ class VideoReader:
                     self.mp_drawing_styles.get_default_hand_connections_style())
         return frame
     
-    def write_data(self, data: np.ndarray, file_name: str, output_path: str) -> None:
-        pass
+    def write_data(self, file_name: str, output_path: str) -> None:
+        np.save(output_path + "/" + file_name, self.video_results)
