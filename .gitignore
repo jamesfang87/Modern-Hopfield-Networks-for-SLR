@@ -6,7 +6,11 @@
 
 # ignore all videos
 *.mp4
+*.mov
 
 # ignore all csv files
 *.csv
 *.txt
+
+# ignore data files
+*.npy
