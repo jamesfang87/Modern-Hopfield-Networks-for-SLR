@@ -61,9 +61,9 @@ class VideoReader:
 
     def extract_important_landmarks(self, results, frame_num: int) -> None:
         """
-        Extracts all hand landmarks and pose landmarks numbered 0-14 from a results object
+        Extracts all hand landmarks and pose landmarks numbered 0-16 from a results object
         the x, y, z coordinates of these landmarks are stored into self.video_results. Left hand
-        landmarks are stored in the first 20 indices, right hand landmarks are stored in the next 20,
+        landmarks are stored in the first 21 indices, right hand landmarks are stored in the next 21,
         and pose landmarks in the last 17.
         
         Precondition: results and self.video_results is not None, 0 <= frame_num < max number of frames
@@ -71,21 +71,21 @@ class VideoReader:
         :param results: results returned from the mediapipe holistic model
         :param frame_num: the current frame number
         """
-        # extract all from hands
+        # extract all from left hand
         for i in range(21):
             if results.left_hand_landmarks:
                 temp = results.left_hand_landmarks.landmark[i]
                 x, y, z = temp.x, temp.y, temp.z
                 self.video_results[frame_num, i] = np.array([x, y, z])
 
-        # extract all from hands
+        # extract all from right hand
         for i in range(21):
             if results.right_hand_landmarks:
                 temp = results.right_hand_landmarks.landmark[i]
                 x, y, z = temp.x, temp.y, temp.z
                 self.video_results[frame_num, 21 + i] = np.array([x, y, z])
 
-        # extract landmarks 0-14 from pose
+        # extract landmarks 0-16 from pose
         for i in range(17):
             if results.pose_landmarks:
                 temp = results.pose_landmarks.landmark[i]
