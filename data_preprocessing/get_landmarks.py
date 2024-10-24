@@ -15,7 +15,7 @@ train_videos = np.array(train["Video file"])
 val_videos = np.array(val["Video file"])
 
 v = VideoReader()
-for file in os.scandir("data/videos"):
+for file in os.scandir("../data/videos"):
     # check to see whether we've already read data for this video
     # and written it to disk
     data_file_name = file.name.replace(".mp4", ".npy")
