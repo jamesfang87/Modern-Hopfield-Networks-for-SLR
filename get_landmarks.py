@@ -17,13 +17,16 @@ v = VideoReader()
 for file in os.scandir("data/videos"):
     # check to see whether we've already read data for this video
     # and written it to disk
-    if (os.path.isfile(f"data/csv/test/{file.name}") or
-        os.path.isfile(f"data/csv/train/{file.name}") or
-        os.path.isfile(f"data/csv/val/{file.name}")):
+    data_file_name = file.name.replace(".mp4", ".npy")
+    if (os.path.isfile(f"data/npy/test/{data_file_name}") or
+        os.path.isfile(f"data/npy/train/{data_file_name}") or
+        os.path.isfile(f"data/npy/val/{data_file_name}")):
+        print(f"skipping video named {file.name}")
         continue
 
     # otherwise, read data from the video
-    v.read_video(f"data/videos/{file.name}", True)
+    print(f"processsing video {file.name}")
+    v.read_video(f"data/videos/{file.name}", False)
 
     # determine whether the video should be in test, train or split
     if file.name in test_videos:
@@ -33,4 +36,4 @@ for file in os.scandir("data/videos"):
     else:
         split = "val"
     
-    v.write_data(file.name + ".npy", f"data/npy/{split}")
+    v.write_data(data_file_name, f"data/npy/{split}")
