@@ -1,8 +1,9 @@
 import os
+
 import numpy as np
 import pandas as pd
-from videoreader import VideoReader
 
+from videoreader import VideoReader
 
 test = pd.read_csv("data/splits/test.csv")
 train = pd.read_csv("data/splits/train.csv")
@@ -19,8 +20,8 @@ for file in os.scandir("data/videos"):
     # and written it to disk
     data_file_name = file.name.replace(".mp4", ".npy")
     if (os.path.isfile(f"data/npy/test/{data_file_name}") or
-        os.path.isfile(f"data/npy/train/{data_file_name}") or
-        os.path.isfile(f"data/npy/val/{data_file_name}")):
+            os.path.isfile(f"data/npy/train/{data_file_name}") or
+            os.path.isfile(f"data/npy/val/{data_file_name}")):
         print(f"skipping video named {file.name}")
         continue
 
@@ -35,5 +36,5 @@ for file in os.scandir("data/videos"):
         split = "train"
     else:
         split = "val"
-    
+
     v.write_data(data_file_name, f"data/npy/{split}")

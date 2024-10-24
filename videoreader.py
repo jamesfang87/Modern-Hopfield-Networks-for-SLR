@@ -1,6 +1,6 @@
-import numpy as np
 import cv2
 import mediapipe as mp
+import numpy as np
 
 
 class VideoReader:
@@ -25,13 +25,13 @@ class VideoReader:
             # change video_results so that it is np.zeros with shape T x num_landmarks x spatial dimensions (3D)
             total_frames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
             self.video_results = np.zeros((int(total_frames), 21 + 21 + 17, 3))
-            
+
             frame_num = 0
             while cap.isOpened():
                 success, frame = cap.read()
                 if not success:
                     break
-                
+
                 # mark frame as not writeable for performance increase
                 frame.flags.writeable = False
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -49,7 +49,7 @@ class VideoReader:
                     # show flipped image
                     video_name = video_path.split("/")[-1]
                     cv2.imshow(f"{video_name}", cv2.flip(frame, 1))
-                
+
                 # increment frame number
                 frame_num += 1
 
@@ -97,30 +97,30 @@ class VideoReader:
         Draws results from mediapipe holistic model on the frame and returns the new frame
         """
         self.mp_drawing.draw_landmarks(
-                    frame,
-                    results.face_landmarks,
-                    self.mp_holistic.FACEMESH_CONTOURS,
-                    None,
-                    self.mp_drawing_styles.get_default_face_mesh_contours_style())
+            frame,
+            results.face_landmarks,
+            self.mp_holistic.FACEMESH_CONTOURS,
+            None,
+            self.mp_drawing_styles.get_default_face_mesh_contours_style())
         self.mp_drawing.draw_landmarks(
-                    frame,
-                    results.pose_landmarks,
-                    self.mp_holistic.POSE_CONNECTIONS,
-                    self.mp_drawing_styles.get_default_pose_landmarks_style())
+            frame,
+            results.pose_landmarks,
+            self.mp_holistic.POSE_CONNECTIONS,
+            self.mp_drawing_styles.get_default_pose_landmarks_style())
         self.mp_drawing.draw_landmarks(
-                    frame,
-                    results.left_hand_landmarks,
-                    self.mp_holistic.HAND_CONNECTIONS,
-                    self.mp_drawing_styles.get_default_hand_landmarks_style(),
-                    self.mp_drawing_styles.get_default_hand_connections_style())
+            frame,
+            results.left_hand_landmarks,
+            self.mp_holistic.HAND_CONNECTIONS,
+            self.mp_drawing_styles.get_default_hand_landmarks_style(),
+            self.mp_drawing_styles.get_default_hand_connections_style())
         self.mp_drawing.draw_landmarks(
-                    frame,
-                    results.right_hand_landmarks,
-                    self.mp_holistic.HAND_CONNECTIONS,
-                    self.mp_drawing_styles.get_default_hand_landmarks_style(),
-                    self.mp_drawing_styles.get_default_hand_connections_style())
+            frame,
+            results.right_hand_landmarks,
+            self.mp_holistic.HAND_CONNECTIONS,
+            self.mp_drawing_styles.get_default_hand_landmarks_style(),
+            self.mp_drawing_styles.get_default_hand_connections_style())
         return frame
-    
+
     def write_data(self, file_name: str, output_path: str) -> None:
         """
         Saves the 3D locations read from the video into output_path/file_name.npy (as a .npy file)

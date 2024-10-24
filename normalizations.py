@@ -36,4 +36,3 @@ def change_length(sign: np.ndarray, new_length: int):
         new_sign[i + before_sign + len(sign)] = sign[-1]
 
     return new_sign
-
