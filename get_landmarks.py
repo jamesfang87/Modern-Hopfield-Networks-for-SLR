@@ -25,7 +25,7 @@ for file in os.scandir("data/videos"):
         continue
 
     # otherwise, read data from the video
-    print(f"processsing video {file.name}")
+    print(f"processing video {file.name}")
     v.read_video(f"data/videos/{file.name}", False)
 
     # determine whether the video should be in test, train or split
