@@ -14,6 +14,7 @@ class Model:
 
         self.model.to(device=self.device)
 
+    # code based on https://github.com/ml-jku/hopfield-layers/tree/master
     def train_model(self, num_epochs) -> tuple[dict, dict]:
         losses, accuracies = {"train": [], "val": []}, {"train": [], "val": []}
         for epoch in range(num_epochs):
@@ -28,6 +29,7 @@ class Model:
 
         return losses, accuracies
 
+    # code based on https://github.com/ml-jku/hopfield-layers/tree/master
     def __train_epoch(self) -> tuple[float, float]:
         self.model.train()
         losses, accuracies = [], []
@@ -53,6 +55,7 @@ class Model:
         # Report progress of training procedure
         return sum(losses) / len(losses), sum(accuracies) / len(accuracies)
 
+    # code based on https://github.com/ml-jku/hopfield-layers/tree/master
     def __eval(self) -> tuple[float, float]:
         self.model.eval()
         with torch.no_grad():

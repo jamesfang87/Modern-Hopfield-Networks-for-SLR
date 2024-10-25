@@ -58,12 +58,12 @@ class HopfieldEncoderLayer(Module):
     def forward(self, src: Tensor, src_mask: Optional[Tensor] = None,
                 src_key_padding_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Apply Hopfield encoding on specified data.
+        Apply Hopfield encoding on specified asl_citizen.
 
-        :param src: data to be processed by Hopfield encoder module
+        :param src: asl_citizen to be processed by Hopfield encoder module
         :param src_mask: mask to be applied on association matrix
         :param src_key_padding_mask: mask to be applied on stored patterns
-        :return: Hopfield-encoded input data
+        :return: Hopfield-encoded input asl_citizen
         """
         data_associated = self.hopfield_association(
             input=src, stored_pattern_padding_mask=src_key_padding_mask, association_mask=src_mask)
@@ -78,9 +78,9 @@ class HopfieldEncoderLayer(Module):
 
     def get_association_matrix(self, input: Union[Tensor, Tuple[Tensor, Tensor, Tensor]]) -> Tensor:
         """
-        Fetch Hopfield association matrix gathered by passing through the specified data.
+        Fetch Hopfield association matrix gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :return: association matrix as computed by the Hopfield core module
         """
         return self.hopfield_association.get_association_matrix(input=input)
@@ -154,10 +154,10 @@ class HopfieldDecoderLayer(Module):
                 memory_mask: Optional[Tensor] = None, tgt_key_padding_mask: Optional[Tensor] = None,
                 memory_key_padding_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Apply Hopfield decoding on specified data.
+        Apply Hopfield decoding on specified asl_citizen.
 
-        :param tgt: data to be processed by Hopfield decoder module (self-association)
-        :param memory: data to be processed by Hopfield encoder module (cross-association)
+        :param tgt: asl_citizen to be processed by Hopfield decoder module (self-association)
+        :param memory: asl_citizen to be processed by Hopfield encoder module (cross-association)
         :param tgt_mask: mask to be applied on self-association matrix
         :param memory_mask: mask to be applied on cross-association matrix
         :param tgt_key_padding_mask: mask to be applied on stored patterns
@@ -183,18 +183,18 @@ class HopfieldDecoderLayer(Module):
 
     def get_association_matrix_self(self, input: Union[Tensor, Tuple[Tensor, Tensor, Tensor]]) -> Tensor:
         """
-        Fetch Hopfield self-association matrix gathered by passing through the specified data.
+        Fetch Hopfield self-association matrix gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :return: association matrix as computed by the Hopfield core module
         """
         return self.hopfield_association_self.get_association_matrix(input=input)
 
     def get_association_matrix_cross(self, input: Union[Tensor, Tuple[Tensor, Tensor, Tensor]]) -> Tensor:
         """
-        Fetch Hopfield cross-association matrix gathered by passing through the specified data.
+        Fetch Hopfield cross-association matrix gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :return: association matrix as computed by the Hopfield core module
         """
         return self.hopfield_association_cross.get_association_matrix(input=input)

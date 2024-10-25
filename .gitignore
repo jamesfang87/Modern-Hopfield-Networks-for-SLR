@@ -12,7 +12,7 @@
 *.csv
 *.txt
 
-# ignore data files
+# ignore asl_citizen files
 *.npy
 
 # Ignore Mac DS_Store files

@@ -80,7 +80,7 @@ class Hopfield(Module):
         :param pattern_projection_as_connected: connect pattern projection with stored pattern
         :param stored_pattern_size: depth of input (stored pattern)
         :param pattern_projection_size: depth of input (pattern projection)
-        :param batch_first: flag for specifying if the first dimension of data fed to "forward" reflects the batch size
+        :param batch_first: flag for specifying if the first dimension of asl_citizen fed to "forward" reflects the batch size
         :param association_activation: additional activation to be applied on the result of the Hopfield association
         :param dropout: dropout probability applied on the association matrix
         :param input_bias: bias to be added to input (state and stored pattern as well as pattern projection)
@@ -162,7 +162,7 @@ class Hopfield(Module):
 
     def _maybe_transpose(self, *args: Tuple[Tensor, ...]) -> Union[Tensor, Tuple[Tensor, ...]]:
         """
-        Eventually transpose specified data.
+        Eventually transpose specified asl_citizen.
 
         :param args: tensors to eventually transpose (dependent on the state of "batch_first")
         :return: eventually transposed tensors
@@ -175,14 +175,14 @@ class Hopfield(Module):
                    stored_pattern_padding_mask: Optional[Tensor] = None,
                    association_mask: Optional[Tensor] = None) -> Tuple[Optional[Tensor], ...]:
         """
-        Apply Hopfield association module on specified data.
+        Apply Hopfield association module on specified asl_citizen.
 
-        :param data: data to be processed by Hopfield core module
+        :param data: asl_citizen to be processed by Hopfield core module
         :param return_raw_associations: return raw association (softmax) values, unmodified
         :param return_projected_patterns: return pattern projection values, unmodified
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
-        :return: Hopfield-processed input data
+        :return: Hopfield-processed input asl_citizen
         """
         assert (type(data) == Tensor) or ((type(data) == tuple) and (len(data) == 3)), \
             r'either one tensor to be used as "stored pattern", "state pattern" and' \
@@ -192,7 +192,7 @@ class Hopfield(Module):
         else:
             stored_pattern, state_pattern, pattern_projection = data
 
-        # Optionally transpose data.
+        # Optionally transpose asl_citizen.
         stored_pattern, state_pattern, pattern_projection = self._maybe_transpose(
             stored_pattern, state_pattern, pattern_projection)
 
@@ -222,12 +222,12 @@ class Hopfield(Module):
                 stored_pattern_padding_mask: Optional[Tensor] = None,
                 association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Apply Hopfield association on specified data.
+        Apply Hopfield association on specified asl_citizen.
 
-        :param input: data to be processed by Hopfield association module
+        :param input: asl_citizen to be processed by Hopfield association module
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
-        :return: Hopfield-processed input data
+        :return: Hopfield-processed input asl_citizen
         """
         association_output = self._maybe_transpose(self._associate(
             data=input, return_raw_associations=False,
@@ -241,9 +241,9 @@ class Hopfield(Module):
                                stored_pattern_padding_mask: Optional[Tensor] = None,
                                association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Fetch Hopfield association matrix gathered by passing through the specified data.
+        Fetch Hopfield association matrix gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
         :return: association matrix as computed by the Hopfield core module
@@ -258,9 +258,9 @@ class Hopfield(Module):
                                      stored_pattern_padding_mask: Optional[Tensor] = None,
                                      association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Fetch Hopfield projected pattern matrix gathered by passing through the specified data.
+        Fetch Hopfield projected pattern matrix gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
         :return: pattern projection matrix as computed by the Hopfield core module
@@ -426,7 +426,7 @@ class HopfieldPooling(Module):
         :param pattern_projection_as_connected: connect pattern projection with stored pattern
         :param stored_pattern_size: depth of input (stored pattern)
         :param pattern_projection_size: depth of input (pattern projection)
-        :param batch_first: flag for specifying if the first dimension of data fed to "forward" reflects the batch size
+        :param batch_first: flag for specifying if the first dimension of asl_citizen fed to "forward" reflects the batch size
         :param association_activation: additional activation to be applied on the result of the Hopfield association
         :param dropout: dropout probability applied on the association matrix
         :param input_bias: bias to be added to input (state and stored pattern as well as pattern projection)
@@ -478,7 +478,7 @@ class HopfieldPooling(Module):
         """
         Prepare input for Hopfield association.
 
-        :param input: data to be prepared
+        :param input: asl_citizen to be prepared
         :return: stored pattern, expanded state pattern as well as pattern projection
         """
         assert (type(input) == Tensor) or ((type(input) == tuple) and (len(input) == 2)), \
@@ -497,12 +497,12 @@ class HopfieldPooling(Module):
     def forward(self, input: Union[Tensor, Tuple[Tensor, Tensor]], stored_pattern_padding_mask: Optional[Tensor] = None,
                 association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Compute Hopfield-based pooling on specified data.
+        Compute Hopfield-based pooling on specified asl_citizen.
 
-        :param input: data to be pooled
+        :param input: asl_citizen to be pooled
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
-        :return: Hopfield-pooled input data
+        :return: Hopfield-pooled input asl_citizen
         """
         return self.hopfield(
             input=self._prepare_input(input=input),
@@ -513,9 +513,9 @@ class HopfieldPooling(Module):
                                stored_pattern_padding_mask: Optional[Tensor] = None,
                                association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Fetch Hopfield association matrix used for pooling gathered by passing through the specified data.
+        Fetch Hopfield association matrix used for pooling gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
         :return: association matrix as computed by the Hopfield core module
@@ -530,9 +530,9 @@ class HopfieldPooling(Module):
                                      stored_pattern_padding_mask: Optional[Tensor] = None,
                                      association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Fetch Hopfield projected pattern matrix gathered by passing through the specified data.
+        Fetch Hopfield projected pattern matrix gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
         :return: pattern projection matrix as computed by the Hopfield core module
@@ -698,7 +698,7 @@ class HopfieldLayer(Module):
         :param pattern_projection_as_connected: connect pattern projection with stored pattern
         :param stored_pattern_size: depth of input (stored pattern)
         :param pattern_projection_size: depth of input (pattern projection)
-        :param batch_first: flag for specifying if the first dimension of data fed to "forward" reflects the batch size
+        :param batch_first: flag for specifying if the first dimension of asl_citizen fed to "forward" reflects the batch size
         :param association_activation: additional activation to be applied on the result of the Hopfield association
         :param dropout: dropout probability applied on the association matrix
         :param input_bias: bias to be added to input (state and stored pattern as well as pattern projection)
@@ -761,7 +761,7 @@ class HopfieldLayer(Module):
         """
         Prepare input for Hopfield association.
 
-        :param input: data to be prepared
+        :param input: asl_citizen to be prepared
         :return: stored pattern, expanded state pattern as well as pattern projection
         """
         batch_size = input.shape[0 if self.batch_first else 1]
@@ -780,12 +780,12 @@ class HopfieldLayer(Module):
     def forward(self, input: Tensor, stored_pattern_padding_mask: Optional[Tensor] = None,
                 association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Compute Hopfield-based lookup on specified data.
+        Compute Hopfield-based lookup on specified asl_citizen.
 
-        :param input: data to used in lookup
+        :param input: asl_citizen to used in lookup
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
-        :return: result of Hopfield-based lookup on input data
+        :return: result of Hopfield-based lookup on input asl_citizen
         """
         return self.hopfield(
             input=self._prepare_input(input=input),
@@ -795,9 +795,9 @@ class HopfieldLayer(Module):
     def get_association_matrix(self, input: Tensor, stored_pattern_padding_mask: Optional[Tensor] = None,
                                association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Fetch Hopfield association matrix used for lookup gathered by passing through the specified data.
+        Fetch Hopfield association matrix used for lookup gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
         :return: association matrix as computed by the Hopfield core module
@@ -812,9 +812,9 @@ class HopfieldLayer(Module):
                                      stored_pattern_padding_mask: Optional[Tensor] = None,
                                      association_mask: Optional[Tensor] = None) -> Tensor:
         """
-        Fetch Hopfield projected pattern matrix gathered by passing through the specified data.
+        Fetch Hopfield projected pattern matrix gathered by passing through the specified asl_citizen.
 
-        :param input: data to be passed through the Hopfield association
+        :param input: asl_citizen to be passed through the Hopfield association
         :param stored_pattern_padding_mask: mask to be applied on stored patterns
         :param association_mask: mask to be applied on inner association matrix
         :return: pattern projection matrix as computed by the Hopfield core module

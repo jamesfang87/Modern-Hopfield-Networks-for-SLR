@@ -10,7 +10,7 @@ class ASLCitizen(Dataset):
         """
         :param annotations_file: the path of the .csv file containing file paths and labels
         :param data_dir: the path of the directory holding the .npy files that represent the videos
-        :param transforms: transforms on the data, defaulted to None
+        :param transforms: transforms on the asl_citizen, defaulted to None
         """
         self.annotations = pd.read_csv(annotations_file)
         self.data_dir = data_dir

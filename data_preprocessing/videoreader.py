@@ -125,7 +125,7 @@ class VideoReader:
         """
         Saves the 3D locations read from the video into output_path/file_name.npy (as a .npy file)
 
-        :param file_name: the name of the .npy file to save the data as
+        :param file_name: the name of the .npy file to save the asl_citizen as
         :param output_path: the path to put the .npy file into
         :return: None
         """
