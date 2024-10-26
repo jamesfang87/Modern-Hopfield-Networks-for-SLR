@@ -1,5 +1,6 @@
 import torch
 from torch.nn.utils import clip_grad_norm_
+from tqdm import tqdm
 
 
 class Model:
@@ -36,7 +37,7 @@ class Model:
     def __train_epoch(self) -> tuple[float, float]:
         self.model.train()
         losses, accuracies = [], []
-        for batch in self.train_dataloader:
+        for batch in tqdm(self.train_dataloader):
             data, labels = batch
             data, labels = data.to(self.device), labels.to(self.device)
 
@@ -52,7 +53,7 @@ class Model:
             self.scheduler.step()
 
             # Compute performance measures of current model.
-            accuracy = (model_output.sigmoid().round() == labels).to(dtype=torch.float32).mean()
+            accuracy = (torch.argmax(model_output.sigmoid().round(), dim=1) == labels).to(dtype=torch.float32).mean()
             accuracies.append(accuracy.detach().item())
             losses.append(loss.detach().item())
 
@@ -64,12 +65,9 @@ class Model:
         self.model.eval()
         with torch.no_grad():
             losses, accuracies = [], []
-            for batch in self.val_dataloader:
+            for batch in tqdm(self.val_dataloader):
                 data, labels = batch
                 data, labels = data.to(self.device), labels.to(self.device)
-
-                # Convert labels to one hot encoding
-                labels = torch.nn.functional.one_hot(labels, num_classes=2731)
 
                 # Model forward propagation
                 model_output = self.model.forward(input=data.to(dtype=torch.float64))
