@@ -10,6 +10,8 @@ class Model:
         self.val_dataloader = val_dataloader
         self.loss_fn = loss_fn
 
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(self.train_dataloader), epochs=50)
+
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
         self.model.to(device=self.device)
@@ -24,8 +26,9 @@ class Model:
             losses["train"].append(train_loss), losses["val"].append(val_loss)
             accuracies["train"].append(train_accuracy), accuracies["val"].append(val_accuracy)
 
-            print(f"train loss: {train_loss}, train accuracy: {train_accuracy}")
-            print(f"val loss: {val_loss}, val accuracy: {val_accuracy}")
+            print(f"epoch {epoch + 1}:")
+            print(f"\ttrain loss: {train_loss}, train accuracy: {train_accuracy}")
+            print(f"\tval loss: {val_loss}, val accuracy: {val_accuracy}")
 
         return losses, accuracies
 
@@ -38,7 +41,7 @@ class Model:
             data, labels = data.to(self.device), labels.to(self.device)
 
             # Model forward propagation
-            model_output = self.model.forward(input=data)
+            model_output = self.model.forward(input=data.to(dtype=torch.float64))
 
             # Update model parameters
             self.optimizer.zero_grad()
@@ -46,6 +49,7 @@ class Model:
             loss.backward()
             clip_grad_norm_(parameters=self.model.parameters(), max_norm=1.0, norm_type=2)
             self.optimizer.step()
+            self.scheduler.step()
 
             # Compute performance measures of current model.
             accuracy = (model_output.sigmoid().round() == labels).to(dtype=torch.float32).mean()
@@ -64,12 +68,15 @@ class Model:
                 data, labels = batch
                 data, labels = data.to(self.device), labels.to(self.device)
 
+                # Convert labels to one hot encoding
+                labels = torch.nn.functional.one_hot(labels, num_classes=2731)
+
                 # Model forward propagation
-                model_output = self.model.forward(input=data)
+                model_output = self.model.forward(input=data.to(dtype=torch.float64))
                 loss = self.loss_fn(model_output, labels.to(dtype=torch.int64))
 
                 # Compute performance measures of current model
-                accuracy = (model_output.sigmoid().round() == labels).to(dtype=torch.float32).mean()
+                accuracy = (torch.argmax(model_output.sigmoid().round(), dim=1) == labels).to(dtype=torch.float32).mean()
                 accuracies.append(accuracy.detach().item())
                 losses.append(loss.detach().item())
 

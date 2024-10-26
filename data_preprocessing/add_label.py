@@ -2,7 +2,7 @@ import pandas as pd
 
 
 def add_label(subset: str) -> None:
-    df = pd.read_csv(f"data/splits/{subset}.csv")
+    df = pd.read_csv(f"asl_citizen/splits/{subset}.csv")
     print("original:")
     print(df)
 
@@ -17,7 +17,7 @@ def add_label(subset: str) -> None:
     # Print the updated DataFrame
     print("with labels:")
     print(df)
-    df.to_csv(f"data/splits/{subset}.csv", index=False)
+    df.to_csv(f"asl_citizen/splits/{subset}.csv", index=False)
 
 
 add_label("test")
