@@ -65,3 +65,25 @@ def upsample_sign(sign: np.ndarray, new_length: int):
         new_sign[i + before_sign + len(sign)] = sign[-1]
 
     return new_sign
+
+
+def normalize_pose_landmarks():
+    """
+    Normalizes pose landmarks based on the size of the signing space of the person
+    :return:
+    """
+    raise NotImplementedError
+
+
+def normalize_hand_landmarks():
+    """
+    Normalizes hand landmarks, aimed at making the model learn the shape of the hands
+
+    for each hand in a frame, the hand center, taken as the middle finger dip, is found
+    this point is taken as the origin and the coordinates of all other landmarks for the hand are
+    changed accordingly. the distances between them are then normalized.
+    """
+    raise NotImplementedError
+
+
+

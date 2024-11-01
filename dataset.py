@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 
-from normalizations import upsample_sign, downsample_sign
+from transformations.normalizations import upsample_sign, downsample_sign
 
 
 class ASLCitizen(Dataset):

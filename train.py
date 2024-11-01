@@ -3,9 +3,7 @@ from torch.nn import Flatten, Linear, Sequential
 from torch.optim import AdamW
 from torch.utils.data import DataLoader
 
-from hflayers import Hopfield, HopfieldPooling, HopfieldLayer
-
-from model import Model
+from model_trainer import ModelTrainer
 from dataset import ASLCitizen
 
 print(torch.__version__)
@@ -14,19 +12,12 @@ train = DataLoader(ASLCitizen("asl_citizen/splits/train.csv", "asl_citizen/npy/t
 val = DataLoader(ASLCitizen("asl_citizen/splits/val.csv", "asl_citizen/npy/val"), batch_size=64)
 
 
-hopfield = Hopfield(
-    input_size= (42 + 17) * 2
-)
-
 T = 128  # temporal dimension, number of frames
 different_signs = 2731
 
-output_projection = Linear(in_features=hopfield.output_size * T, out_features=different_signs)
-
-# code based on https://github.com/ml-jku/hopfield-layers/tree/master
-network = Sequential(hopfield, Flatten(), output_projection).double()
+network = Sequential()
 optimizer = AdamW(params=network.parameters(), lr=1e-3)
 loss_fn = torch.nn.CrossEntropyLoss()
 
-translator = Model(network, optimizer, train, val, loss_fn)
+translator = ModelTrainer(network, optimizer, loss_fn, train, val)
 results = translator.train_model(50)

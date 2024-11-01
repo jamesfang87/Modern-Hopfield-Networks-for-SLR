@@ -3,13 +3,13 @@ from torch.nn.utils import clip_grad_norm_
 from tqdm import tqdm
 
 
-class Model:
-    def __init__(self, model, optimizer, train_dataloader, val_dataloader, loss_fn):
+class ModelTrainer:
+    def __init__(self, model, optimizer, loss_fn, train_dataloader, val_dataloader):
         self.model = model
         self.optimizer = optimizer
+        self.loss_fn = loss_fn
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
-        self.loss_fn = loss_fn
 
         self.scheduler = torch.optim.lr_scheduler.OneCycleLR(self.optimizer, max_lr=0.01, steps_per_epoch=len(self.train_dataloader), epochs=50)
 
