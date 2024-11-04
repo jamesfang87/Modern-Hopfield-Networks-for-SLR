@@ -28,23 +28,26 @@ class ASLCitizen(Dataset):
 
     def __getitem__(self, idx):
         data_path = os.path.join(self.data_dir, self.file_names[idx].replace(".mp4", ".npy"))
-        data = np.load(data_path)
+        sign = np.load(data_path)
         label = self.labels[idx]
 
         # only look at x and y coordinates of body landmarks for now
-        data = data[:, :, :2]
+        sign = sign[:, :, :2]
+
+        # shift coordinate system so that [0.5, 0.5] is now the origin
+        sign -= 0.5
 
         # normalize the length of all signs to be self.sign_length
-        if len(data) > self.sign_length:
-            data = downsample_sign(data, self.sign_length)
-        elif len(data) < self.sign_length:
-            data = upsample_sign(data, self.sign_length)
+        if len(sign) > self.sign_length:
+            sign = downsample_sign(sign, self.sign_length)
+        elif len(sign) < self.sign_length:
+            sign = upsample_sign(sign, self.sign_length)
 
         # "flatten" out all other dimensions except for the temporal dimension
-        data = data.reshape(data.shape[0], -1)
+        sign = sign.reshape(sign.shape[0], -1)
 
         if self.transforms:
             for transform in self.transforms:
-                data = transform(data)
+                sign = transform(sign)
 
-        return data, label
+        return sign, label
