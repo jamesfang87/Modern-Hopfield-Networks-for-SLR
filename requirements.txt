@@ -1,0 +1,9 @@
+pandas~=2.2.3
+numpy~=1.26.4
+opencv-python~=4.10.0.84
+mediapipe~=0.10.15
+
+torch~=2.5.0
+tqdm~=4.66.6
+jax~=0.4.34
+flax~=0.10.1
