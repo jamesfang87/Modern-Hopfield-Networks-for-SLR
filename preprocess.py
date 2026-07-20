@@ -1,3 +1,17 @@
+"""
+We follow the same training strategies as "Training Strategies for Isolated Sign Language Recognition"
+
+@misc{kvanchiani2025trainingstrategiesisolatedsign,
+      title={Training Strategies for Isolated Sign Language Recognition},
+      author={Karina Kvanchiani and Roman Kraynov and Elizaveta Petrova and Petr Surovcev and Aleksandr Nagaev and Alexander Kapitanov},
+      year={2025},
+      eprint={2412.11553},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2412.11553},
+}
+"""
+
 import random
 
 import cv2
@@ -39,12 +53,6 @@ class ASL_Citizen(Dataset):
 
         frames = grp["frames"][:]  # decoded once at preprocessing time
         label = int(grp.attrs["label"])
-        sign_start = int(grp.attrs["sign_start"])
-        sign_end = int(grp.attrs["sign_end"])
-
-        sign_start, sign_end = self._random_boundary_shift(
-            sign_start, sign_end, total_frames=len(frames)
-        )
 
         frames = self._apply_video_augmentation(frames)
         frames = self._sample_frames(frames)
@@ -58,8 +66,6 @@ class ASL_Citizen(Dataset):
         return {
             "pixel_values": tensor,
             "label": label,
-            "sign_start": sign_start,
-            "sign_end": sign_end,
         }
 
     def __len__(self):
@@ -100,17 +106,6 @@ class ASL_Citizen(Dataset):
             return aug_fn(frames)
         except ValueError:
             return frames  # e.g. too few frames for the chosen op
-
-    def _random_boundary_shift(
-        self, sign_start, sign_end, total_frames, shift_range=(-5, 5)
-    ):
-        if sign_start < 0 or sign_end < 0:
-            return sign_start, sign_end  # no boundary info available
-        shift_start = random.randint(*shift_range)
-        shift_end = random.randint(*shift_range)
-        new_start = max(0, sign_start + shift_start)
-        new_end = min(total_frames - 1, sign_end + shift_end)
-        return new_start, new_end
 
     # -----------------------------------------------------------------
     # Frame sampling
@@ -259,5 +254,3 @@ class ASL_Citizen(Dataset):
         frames = self._image_compression(frames)
         frames = self._downscale(frames)
         return frames
-
-    # -----------------------------------------------------------------
