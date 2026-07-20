@@ -5,11 +5,12 @@ from tqdm import tqdm
 
 class Stats:
     """Accumulates loss and ranking metrics (Recall@1, Recall@5,
-    Recall@10, MRR, DCG) over an epoch and reports their averages."""
+    Recall@10, MRR, DCG) over an epoch and reports their averages.
+    """
 
     def __init__(self):
         self.losses = []
-        self.recall_at_1 = []  # Recall@1
+        self.recall_at_1 = []
         self.recall_at_5 = []
         self.recall_at_10 = []
         self.mrr = []
@@ -28,7 +29,7 @@ class Stats:
         self.mrr.append((1.0 / ranks).mean().item())
         self.dcg.append((1.0 / torch.log2(ranks + 1)).mean().item())
 
-    def compute(self) -> dict[str, float]:
+    def compute(self) -> dict:
         return {
             "loss": sum(self.losses) / len(self.losses),
             "recall@1": sum(self.recall_at_1) / len(self.recall_at_1),
@@ -40,25 +41,61 @@ class Stats:
 
 
 class ModelTrainer:
-    def __init__(self, model, optimizer, loss_fn, train_dataloader, val_dataloader):
+    def __init__(
+        self,
+        model,
+        optimizer,
+        loss_fn,
+        train_dataloader,
+        val_dataloader,
+        max_lr,
+        epochs,
+        mean,
+        std,
+        checkpoint_path=None,
+        use_amp=True,
+        grad_clip_norm=1.0,
+    ):
         self.model = model
         self.optimizer = optimizer
         self.loss_fn = loss_fn
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
+        self.mean = mean
+        self.std = std
+        self.checkpoint_path = checkpoint_path
+        self.grad_clip_norm = grad_clip_norm
+
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.model.to(device=self.device)
+
+        self.use_amp = use_amp and self.device.type == "cuda"
+        self.scaler = torch.cuda.amp.GradScaler(enabled=self.use_amp)
 
         self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
             self.optimizer,
-            max_lr=0.01,
+            max_lr=max_lr,  # float or list matching optimizer.param_groups order
             steps_per_epoch=len(self.train_dataloader),
-            epochs=50,
+            epochs=epochs,
         )
 
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.best_recall_at_1 = 0.0
 
-        self.model.to(device=self.device)
+    def _prepare_batch(self, batch):
+        pixel_values = batch["pixel_values"].to(self.device)
+        labels = batch["label"].to(self.device)
 
-    # code based on https://github.com/ml-jku/hopfield-layers/tree/master
+        mean_t = torch.tensor(self.mean, device=self.device).view(1, 3, 1, 1, 1)
+        std_t = torch.tensor(self.std, device=self.device).view(1, 3, 1, 1, 1)
+        pixel_values = (
+            pixel_values - mean_t
+        ) / std_t  # normalize, still (B, C, T, H, W)
+        pixel_values = pixel_values.permute(
+            0, 2, 1, 3, 4
+        ).contiguous()  # -> (B, T, C, H, W)
+
+        return pixel_values, labels
+
     def train_model(self, num_epochs) -> tuple[dict, dict]:
         train_history, val_history = {}, {}
         for epoch in range(num_epochs):
@@ -74,50 +111,56 @@ class ModelTrainer:
             print(f"\ttrain: {train_stats}")
             print(f"\tval: {val_stats}")
 
+            if (
+                self.checkpoint_path is not None
+                and val_stats["recall@1"] > self.best_recall_at_1
+            ):
+                self.best_recall_at_1 = val_stats["recall@1"]
+                torch.save(self.model.state_dict(), self.checkpoint_path)
+                print(
+                    f"\tnew best val recall@1 ({self.best_recall_at_1:.4f}), saved to {self.checkpoint_path}"
+                )
+
         return train_history, val_history
 
-    # code based on https://github.com/ml-jku/hopfield-layers/tree/master
-    def __train_epoch(self) -> dict[str, float]:
+    def __train_epoch(self) -> dict:
         self.model.train()
         stats = Stats()
         for batch in tqdm(self.train_dataloader):
-            data, labels = batch
-            data, labels = data.to(self.device), labels.to(self.device)
+            pixel_values, labels = self._prepare_batch(batch)
 
-            # Model forward propagation
-            model_output = self.model.forward(input=data.to(dtype=torch.float64))
+            self.optimizer.zero_grad(set_to_none=True)
 
-            # Update model parameters
-            self.optimizer.zero_grad()
-            loss = self.loss_fn(model_output, labels.to(dtype=torch.int64))
-            loss.backward()
+            with torch.autocast(device_type=self.device.type, enabled=self.use_amp):
+                model_output = self.model(pixel_values=pixel_values).logits
+                loss = self.loss_fn(model_output, labels.to(dtype=torch.int64))
+
+            self.scaler.scale(loss).backward()
+            self.scaler.unscale_(self.optimizer)
             clip_grad_norm_(
-                parameters=self.model.parameters(), max_norm=1.0, norm_type=2
+                parameters=self.model.parameters(),
+                max_norm=self.grad_clip_norm,
+                norm_type=2,
             )
-            self.optimizer.step()
+            self.scaler.step(self.optimizer)
+            self.scaler.update()
             self.scheduler.step()
 
-            # Compute performance measures of current model.
             stats.update(loss.detach().item(), model_output.detach(), labels)
 
-        # Report progress of training procedure
         return stats.compute()
 
-    # code based on https://github.com/ml-jku/hopfield-layers/tree/master
-    def __eval(self) -> dict[str, float]:
+    def __eval(self) -> dict:
         self.model.eval()
         with torch.no_grad():
             stats = Stats()
             for batch in tqdm(self.val_dataloader):
-                data, labels = batch
-                data, labels = data.to(self.device), labels.to(self.device)
+                pixel_values, labels = self._prepare_batch(batch)
 
-                # Model forward propagation
-                model_output = self.model.forward(input=data.to(dtype=torch.float64))
-                loss = self.loss_fn(model_output, labels.to(dtype=torch.int64))
+                with torch.autocast(device_type=self.device.type, enabled=self.use_amp):
+                    model_output = self.model(pixel_values=pixel_values).logits
+                    loss = self.loss_fn(model_output, labels.to(dtype=torch.int64))
 
-                # Compute performance measures of current model
                 stats.update(loss.detach().item(), model_output.detach(), labels)
 
-            # Report results on validation set
             return stats.compute()
